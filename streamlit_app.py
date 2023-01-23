@@ -3,10 +3,7 @@ import os
 import snowflake.connector
 # Everything is accessible via the st.secrets dict:
 
-st.write("DB user:", st.secrets["db_user"])
-st.write("DB pw:", st.secrets["db_pw"])
-st.write("DB acct:", st.secrets["db_acct"])
-
+st.write("DB config:", **st.secrets["snowflake"])
 
 
 # Uses st.experimental_singleton to only run once.
@@ -25,10 +22,12 @@ conn = init_connection()
 @st.experimental_memo(ttl=600)
 def run_query(query):
     with conn.cursor() as cur:
+        cur.execute("USE WAREHOUSE COMPUTE_WH")
+        cur.execute("USE DATABASE FINANCIALS")
         cur.execute(query)
         return cur.fetchall()
 
-rows = run_query("SELECT * from payments_master;")
+rows = run_query(" SELECT * from financials.public.payments_master;")
 
 # Print results.
 for row in rows:
