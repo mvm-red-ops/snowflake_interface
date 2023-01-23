@@ -88,38 +88,39 @@ def form_query():
                 print(counter, curr)
                 full_query = full_query + ' AND ' + curr
                 counter+=1
+        print(full_query) 
+        return full_query
+
     else: 
         return base_query
 
-    print(full_query)
 
 if form_submitted():
-    print('form submitted')
     
     query = form_query()
 
     # Uses st.experimental_singleton to only run once.
-    # @st.experimental_singleton
-    # def init_connection():
-    #     return snowflake.connector.connect(
-    #         **st.secrets["snowflake"], client_session_keep_alive=True
-    #     )
+    @st.experimental_singleton
+    def init_connection():
+        return snowflake.connector.connect(
+            **st.secrets["snowflake"], client_session_keep_alive=True
+        )
 
-    # conn = init_connection()
+    conn = init_connection()
 
     # # Perform query.
     # # Uses st.experimental_memo to only rerun when the query changes or after 10 min.
-    # @st.experimental_memo(ttl=600)
-    # def run_query(query):
-    #     with conn.cursor() as cur:
-    #         cur.execute("USE WAREHOUSE COMPUTE_WH")
-    #         cur.execute("USE DATABASE FINANCIALS")
-    #         cur.execute(query)
-    #         return cur.fetchall()
+    @st.experimental_memo(ttl=600)
+    def run_query(query):
+        with conn.cursor() as cur:
+            cur.execute("USE WAREHOUSE COMPUTE_WH")
+            cur.execute("USE DATABASE FINANCIALS")
+            cur.execute(query)
+            return cur.fetchall()
 
-    # # rows = run_query(" SELECT * from financials.public.payments_master;")
+    rows = run_query(full_query)
 
 
     # # # Print results.
-    # # for row in rows:
-    # #     st.write(f"{row[0]} has a :{row[1]}:")
+    for row in rows:
+        st.write(f"{row[0]} has a :{row[1]}:")
