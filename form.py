@@ -15,7 +15,7 @@ def write_form(callback):
 
         # payment type dropdown- single
         # revenue, expenses or both
-        payment_type_options = st.multiselect( 'Select :blue[Payment Type/s]', ['Revenue', 'Expenses'], key="payment_options")
+        payment_type_options = st.multiselect( 'Select :blue[Payment Type/s]', ['Revenue', 'Expense'], key="payment_options")
 
 
         # domain dropdown-single
